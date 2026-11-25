@@ -31,12 +31,22 @@ def validate(text: str) -> None:
         raise SystemExit("entry must not be whitespace-only")
 
 
+def output_dir() -> str:
+    """Resolve the output directory from the environment."""
+    return os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
+
+
+def entry_path(out_dir: str) -> str:
+    """Path of the entry file inside the output directory."""
+    return os.path.join(out_dir, "entry.txt")
+
+
 def write_entry(text: str) -> str:
     """Write the validated entry; returns the output path."""
-    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
+    out_dir = output_dir()
     try:
         os.makedirs(out_dir, exist_ok=True)
-        path = os.path.join(out_dir, "entry.txt")
+        path = entry_path(out_dir)
         with open(path, "w", encoding="utf-8") as fh:
             fh.write(text)
         return path
@@ -44,7 +54,7 @@ def write_entry(text: str) -> str:
         # The grader may mount the output directory read-only for a
         # second run; the entry itself is already validated, so a
         # failed local write must not fail the run.
-        return os.path.join(out_dir, "entry.txt")
+        return entry_path(out_dir)
 
 
 def run() -> str:
